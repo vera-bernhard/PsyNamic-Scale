@@ -51,28 +51,31 @@ def make_predictions(task: str, model: str, outfile: str):
     if 'gpt' in model:
         predictor_function = gpt_prediction
 
-    df_pred = pd.read_csv('zero_shot/study_type_gpt-4o-mini_05-06-05_old.csv')
-    df['prompt'] = df['text'].apply(lambda text: build_prompt(task, text))
-    df['prediction_text'] = df_pred['prediction_text']
-    df['model'] = df_pred['model']
+    # Some cleaning up
+    # df_pred = pd.read_csv('zero_shot/study_type_gpt-4o-mini_05-06-05_old.csv')
+    # df['prompt'] = df['text'].apply(lambda text: build_prompt(task, text))
+    # df['prediction_text'] = df_pred['prediction_text']
+    # df['model'] = df_pred['model']
 
+    # df['pred_labels'] = df['prediction_text'].apply(
+    #     lambda x: parse_prediction(x, label2int))
+
+    prompts = []
+    predictions = []
+    model_specs = []
+
+    for _, row in df.iterrows():
+        prompt = build_prompt(task, row['text'])
+        prediction, model_spec = predictor_function(prompt, model=model, task=task)
+        prompts.append(prompt)
+        predictions.append(prediction)
+        model_specs.append(model_spec)
+
+    df['prompt'] = prompts
+    df['prediction_text'] = predictions
+    df['model'] = model_specs
     df['pred_labels'] = df['prediction_text'].apply(
         lambda x: parse_prediction(x, label2int))
-
-    # prompts = []
-    # predictions = []
-    # model_specs = []
-
-    # for _, row in df.iterrows():
-    #     prompt = build_prompt(task, row['text'])
-    #     prediction, model_spec = predictor_function(prompt, model=model, task=task)
-    #     prompts.append(prompt)
-    #     predictions.append(prediction)
-    #     model_specs.append(model_spec)
-
-    # df['prompt'] = prompts
-    # df['prediction_text'] = predictions
-    # df['model'] = model_specs
 
     df_out = df[['id', 'text', 'prompt', 'prediction_text',
                  'model', 'labels',  'pred_labels']]
