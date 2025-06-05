@@ -1,0 +1,17 @@
+{
+    "Study Type": {
+        "Options": {
+            "Randomized-controlled trial (RCT)": "A study where individuals are randomly assigned to one of two or more groups, with one receiving a psychedelic substance and the others receiving a placebo or standard treatment, to compare outcomes directly. I.e., the study needs to check to attributes: 1) being randomized and 2) being controlled (e.g., with a placebo or an active control).",
+            "Cohort study": "An observational study where a defined group of people (the cohort) is followed over time to study outcomes related to an exposure to psychedelic substance(s), comparing results within the group or with a different group not exposed to the substance. In most cases, it is explicitly mentioned that this is a cohort study.",
+            "Real-world study": "Examines the relationship between variables (e.g., the use of a psychedelic substance and mental health outcomes) at a single point across a real-world population and setting. This includes real-world studies on recreational drug use, survey-based studies e.g., on MDMA use among healthy adults or studies assessing emergency department visits of people ingesting MDMA. Studies recruiting recreational drug users for additional interventions or experimental procedures such as taking blood or conducting EEG do NOT belong to this category.",
+            "Study protocol": "A protocol of a clinical trial outlining methodology of a study still to be conducted. Annotate as if the study has been conducted.",
+            "Systematic review/meta-analysis": "A comprehensive summary of all the available primary research on a specific psychedelic-related research question. Should mention the term systematic review and/or meta-analysis in the title/abstract. Meta-analyses only refer to published studies, i.e., pooling of different RCTs would be “Other”.",
+            "Qualitative Study": "Explores subjective experiences, perceptions, and the impact of psychedelic substances through interviews, focus groups, or content analysis. Also includes studies focusing on religion/spirituality related to psychedelic substances.",
+            "Case report": "A detailed report of the symptoms, signs, diagnosis, treatment, and follow-up of one individual patient/healthy participant.",
+            "Case series": "A collection of case reports involving patients who were given similar interventions.",
+            "Other": "A study not belonging to one of the above categories or not classifiable based on the provided information. A study pooling different RCTs together belongs to this category."
+        },
+        "Is_multilabel": true,
+        "Task_descripton": "The task is to classify the study type based on the title and abstract of a research paper. One or more of study types can be assigned."
+    }
+}
