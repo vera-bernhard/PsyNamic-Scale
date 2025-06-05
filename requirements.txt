@@ -1,0 +1,6 @@
+dotenv
+openai
+pandas
+scikit-learn
+git+https://github.com/jacobgil/confidenceinterval.git
+numpy

@@ -1,0 +1,20 @@
+// .vscode/launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run zero_shot.predict_zero_shot",
+      "type": "python",
+      "request": "launch",
+      "module": "zero_shot.predict_zero_shot",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Run finetuning.trainer",
+      "type": "python",
+      "request": "launch",
+      "module": "finetuning.trainer",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
