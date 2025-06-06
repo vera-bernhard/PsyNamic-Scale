@@ -1,0 +1,38 @@
+{
+    "Application area": {
+        "Definition": "The condition or disease of interest studied under the impact of the psychedelic substance in the present paper.",
+        "Criteria": [
+            "Our working definition for the Application is any \"state labeled as diseases by virtue of consensus on prevalent sociocultural and medical values\". It has to have \"clearly identifiable diagnostic features and disease progression, and response to specific treatment.\"",
+            "As a general guideline, annotated entities should be conditions that have an ICD-10/11 code.",
+            "Annotate only in title and/or the introductory part of the abstract, i.e., when the problem or objective of the study is discussed (including abbreviations). Do NOT annotate outcomes, such as \"the Hamilton Depression Scale\" should not be annotated. Similarly, \"antisuicidal response\" should not be annotated. Or: \"among participants, depression was reduced\", do NOT annotate depression.",
+            "Do NOT annotate antidepressant.",
+            "Do not annotate over brackets: \"…or bipolar disorder (BD) type 1 and type 2\", only bipolar disorder and BD should be annotated as two entities.",
+            "Do NOT annotate very generic concepts like \"psychiatric condition\"",
+            "Annotate sweeping statements like \"…with major depressive and bipolar disorder\" as one entity.",
+            "Annotate the reasonably necessary string, e.g., \"active suicidal ideation\", active suicidal ideation should be annotated. However, adjectives could be annotated, \"Depressed patients\", annotate Depressed but not patients. \"depressive symptoms\" should both be annotated (also symptoms of depression). In \"refractory anxiety disorder\", annotate the entire string.",
+            "Further defining characteristics should be included: Acute/Chronic; Active/Inactive; Mild/Moderate/Severe; End Stage/Early Stage; Drug-resistant; Total/Partial; Intermittent/Relapsing and others. Similarly, \"Post-stroke\" should be annotated instead of only \"stroke\" because it refers to the phase after the acute stroke.",
+            "Annotate abbreviations. Abbreviations should be annotated  separately. For instance,\"Huntington disease (HD)\"should be separated into two annotations: \"Huntington disease\" and \"HD.",
+            "Of note, in \"Managing dissociative symptoms following esketamine\", dissociative symptoms are NOT the treatment target but the target of the study and should NOT be annotated (context is relevant).",
+            "Cigarette addiction is a disorder but not smoking cessation.",
+            "Can be empty, i.e., no annotation per abstract.",
+            "Include .^ in the title for highlighting"
+        ]
+       
+    },
+    "Dosage": {
+        "Definition": "The applied dosage(s) of the psychedelic substance(s) in the present study.",
+        "Criteria":[
+            "Only annotate for studies testing not more than 1 psychedelic substance (e.g., do not annotate in a study testing lsd and psilocybin, BUT annotate in a study testing psilocybin against midazolam)",
+            "Do NOT annotate doses of other substances or of the psychedelic substance in other studies (e.g, mentioned by referencing other studies)",
+            "Do not annotate concentrations of solutions but dosages, i.e., do NOT annotate 500mg/10 ml, but annotate 2mg/kg.",
+            "Annotate the number and the corresponding unit.",
+            "Annotate all reported doses for the respective psychedelic substance.",
+            "Annotate only for single substance studies (i.e., do not annotate in abstracts which report the dosage of two or more psychedelic substances).",
+            "Annotate the number including the unit.",
+            "Annotate also the term \"between\" if pertinent, similarly \"or\" and \"and\" should be annotated. Do not annotate \"per device\".",
+            "Annotate also relative dosages (e.g., 1 mg/kg), do not annotate the terms \"bw\" or \"body weight\" or similar if pertinent",
+            "Do NOT annotate doses measured in e.g., plasma (like 4 mg/ml)",
+            "Can be empty, i.e, no annotation per abstract."
+        ]
+    }
+}
