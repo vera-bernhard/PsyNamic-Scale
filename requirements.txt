@@ -4,3 +4,10 @@ pandas
 scikit-learn
 git+https://github.com/jacobgil/confidenceinterval.git
 numpy
+nervaluate
+bs4
+spacy
+seaborn
+matplotlib
+# After installing requirements, run:
+# python -m spacy download en_core_web_sm
