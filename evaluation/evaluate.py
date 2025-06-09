@@ -30,7 +30,7 @@ def bootstrap(metric: callable, y_true: np.ndarray, y_pred: np.ndarray) -> tuple
 
 # STRIDE-Lab
 def custom_f1(true_labels: np.ndarray, pred_labels: np.ndarray):
-    return f1_score(true_labels, pred_labels, average="macro", zero_division=0)
+    return f1_score(true_labels, pred_labels, average="weighted", zero_division=0)
 
 
 # STRIDE-Lab
@@ -40,12 +40,12 @@ def custom_accuracy(true_labels: np.ndarray, pred_labels: np.ndarray):
 
 # STRIDE-Lab
 def custom_precision(true_labels: np.ndarray, pred_labels: np.ndarray):
-    return precision_score(true_labels, pred_labels, average="macro", zero_division=0)
+    return precision_score(true_labels, pred_labels, average="weighted", zero_division=0)
 
 
 # STRIDE-Lab
 def custom_recall(true_labels: np.ndarray, pred_labels: np.ndarray):
-    return recall_score(true_labels, pred_labels, average="macro", zero_division=0)
+    return recall_score(true_labels, pred_labels, average="weighted", zero_division=0)
 
 
 # STRIDE-Lab
@@ -61,7 +61,7 @@ def get_metrics_ci(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     recall, recall_ci = bootstrap(custom_recall, y_true, y_pred)
 
     metric_dict = {
-        "f1-macro": (f1_score, f1_ci),
+        "f1-weighted": (f1_score, f1_ci),
         "accuracy": (accuracy, acc_ci),
         "precision": (precision, prec_ci),
         "recall": (recall, recall_ci),
@@ -101,3 +101,6 @@ def get_performance_report(col_tru: str, col_pred: str, df: pd.DataFrame) -> dic
     }
 
     return report
+
+
+
