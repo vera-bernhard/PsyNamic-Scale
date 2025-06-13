@@ -9,6 +9,5 @@ bs4
 spacy # After installing requirements, run `python -m spacy download en_core_web_sm`
 seaborn
 matplotlib
-transformers # Dont forget to get access to the models and log in via `huggingface-cli login`
-torch
-deepspeeds
+# transformers # Dont forget to get access to the models and log in via `huggingface-cli login`
+# deepspeeds
