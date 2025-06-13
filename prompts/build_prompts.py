@@ -49,9 +49,6 @@ OUTPUT: '''
 # based on Hu et al. 2024
 
 
-
-
-
 system_role_ner = "You are a helpful medical expert who is helping to extract named entities from medical abstracts."
 
 user_prompt_ner = '''###Task
@@ -78,7 +75,7 @@ def build_class_prompt(task: str, title_abstract: str):
 
     with open(file_path, 'r', encoding='utf-8') as f:
         task_descriptions = json.load(f)
-    
+
     if task not in task_descriptions:
         raise ValueError(f"Task '{task}' not found in the task descriptions.")
 
@@ -97,6 +94,7 @@ def build_class_prompt(task: str, title_abstract: str):
         ),
         TITLE_ABBSTRACT=title_abstract
     )
+
     return task_user_prompt
 
 
@@ -118,7 +116,7 @@ def build_ner_prompt(title_abstract: str):
         annotation_guidelines += f'{entity} should be annotated according to the following criteria:\n'
         for crit in det['Criteria']:
             annotation_guidelines += f'* {crit}\n'
-        annotation_guidelines += '\n'   
+        annotation_guidelines += '\n'
 
     entity_markup_guide = entity_markup_guide[:-2] + '.'
     definitions = definitions[:-2]
@@ -126,7 +124,6 @@ def build_ner_prompt(title_abstract: str):
     entities.rstrip(', ')
     annotation_guidelines = annotation_guidelines.rstrip('\n')
 
-                    
     return user_prompt_ner.format(
         ENTITIES=entities,
         ENTITY_MARKUP_GUIDE=entity_markup_guide,
@@ -134,5 +131,3 @@ def build_ner_prompt(title_abstract: str):
         ANNOTATION_GUIDELINES=annotation_guidelines,
         TITLE_ABSTRACT=title_abstract
     )
-
-

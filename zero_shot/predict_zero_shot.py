@@ -18,6 +18,12 @@ import pandas as pd
 import json
 import spacy
 import ast
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+import deepspeed
+from transformers.utils import logging
+logging.set_verbosity_info()
+
 
 # Load environment variables from .env file
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
@@ -25,17 +31,113 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 nlp = spacy.load("en_core_web_sm")
+SEED = 42
+
+
+def set_seed(seed: int = 42):
+    """Set all seeds for reproducibility."""
+    # random.seed(seed)
+    # np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
+def llama_prediction(
+        prompt: str,
+        model: str,
+        use_gpu: bool = False,
+        distributed: bool = False,
+        temperature: float = 0,
+        do_sample: bool = False,
+        top_p: float = 1.0) -> tuple[str, str]:
+    """Make a prediction using the LLaMA model and return the response content and model specification.
+
+    If distributed=True, uses DeepSpeed for inference.
+    """
+    if distributed and not use_gpu:
+        raise ValueError(
+            "DeepSpeed distributed inference requires GPU (use_gpu=True).")
+
+    set_seed(SEED)
+    model_name = model
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    if distributed:
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+
+        model = deepspeed.init_inference(
+            model,
+            mp_size=torch.cuda.device_count(),
+            dtype=torch.float16 if use_gpu else torch.float32,
+            replace_method="auto",
+            replace_with_kernel_inject=True,
+        )
+
+        device = torch.device("cuda")
+        inputs = tokenizer(prompt, return_tensors="pt").to(device)
+
+    else:
+        if use_gpu:
+            device_map = "auto"
+            torch_dtype = torch.float16
+        else:
+            device_map = None
+            torch_dtype = torch.float32
+
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map=device_map,
+            torch_dtype=torch_dtype,
+            low_cpu_mem_usage=True
+        )
+
+        inputs = tokenizer(prompt, return_tensors="pt")
+        device = torch.device("cuda" if use_gpu else "cpu")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+    generation_kwargs = {
+        "max_new_tokens": 500,
+        "do_sample": do_sample,
+        "eos_token_id": tokenizer.eos_token_id,
+        "pad_token_id": tokenizer.pad_token_id,
+        "temperature": temperature,
+        "top_p": top_p,
+        
+    }
+
+    if do_sample:
+        # Create a generator for reproducibility
+        generator = torch.Generator(device=device).manual_seed(SEED)
+        generation_kwargs.update({
+            "generator": generator,
+        })
+
+    with torch.no_grad():
+        generation_output = model.generate(**inputs, **generation_kwargs)
+
+    output_text = tokenizer.decode(
+        generation_output[0], skip_special_tokens=True)
+
+    return output_text, model_name
 
 
 def gpt_prediction(prompt: str, model: str = "gpt-4o-mini", system_role: str = '') -> tuple[str, str]:
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": system_role},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_role},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0,
+            seed=SEED  # not sure if this realyl works
+        )
+    except Exception as e:
+        return f"OpenAI API call failed: {e}", model
+
     response_content = response.choices[0].message.content.strip()
     model_spec = response.model
     return response_content, model_spec
@@ -52,10 +154,6 @@ def make_class_predictions(task: str, model: str, outfile: str):
 
     df = pd.read_csv(file)
 
-    predictor_function = None
-    if 'gpt' in model:
-        predictor_function = gpt_prediction
-
     # Some cleaning up
     # df_pred = pd.read_csv('zero_shot/study_type_gpt-4o-mini_05-06-05_old.csv')
     # df['prompt'] = df['text'].apply(lambda text: build_prompt(task, text))
@@ -68,8 +166,21 @@ def make_class_predictions(task: str, model: str, outfile: str):
 
     for _, row in df.iterrows():
         prompt = build_class_prompt(task, row['text'])
-        prediction, model_spec = predictor_function(
-            prompt, model=model, system_role=system_role_class)
+
+        # Llama chat
+        if 'Llama' in model and 'chat' in model:
+            prompt = f"""[INST] <<SYS>>
+            {system_role_class}
+            <</SYS>>
+            {prompt}[/INST]"""
+
+            prediction, model_spec = llama_prediction(
+                prompt, model=model)
+
+        elif 'gpt' in model:
+            prediction, model_spec = gpt_prediction(
+                prompt, model=model, system_role=system_role_class)
+
         prompts.append(prompt)
         predictions.append(prediction)
         model_specs.append(model_spec)
@@ -167,129 +278,125 @@ def basic_tokenizer(text: str) -> list[str]:
     return tokenized
 
 
-def parse_ner_prediction(pred: str, tokens: list[str]) -> tuple[str, str]:
+# def parse_ner_prediction(pred: str, tokens: list[str]) -> tuple[str, str]:
 
-    ner_labels = {
-        'application-area': 'Application Area',
-        'dosage': 'Dosage',
-    }
+#     ner_labels = {
+#         'application-area': 'Application Area',
+#         'dosage': 'Dosage',
+#     }
 
-    labeled_chuncks = extract_labeled_chunks(pred)
+#     labeled_chuncks = extract_labeled_chunks(pred)
 
-    token_labels = []
-    aligned_tokens = []
-    token_id = 0
+#     token_labels = []
+#     aligned_tokens = []
+#     token_id = 0
 
-    for i, (chunk, label) in enumerate(labeled_chuncks):
-        pseudo_tokens = basic_tokenizer(chunk)
-        # Case 1: Chunk is not an NER label
-        if label is None:
-            for ptok in pseudo_tokens:
-                # Prediction token matches exactly
-                if ptok == tokens[token_id]:
-                    token_id += 1
-                    token_labels.append('O')
-                    aligned_tokens.append(ptok)
-                # Prediction token does not match exactly
-                else:
-                    if tokens[token_id] == '\n':
-                        # If the token is a newline, we can skip it
-                        token_id += 1
-                        token_labels.append('O')
-                        aligned_tokens.append("")
+#     for i, (chunk, label) in enumerate(labeled_chuncks):
+#         pseudo_tokens = basic_tokenizer(chunk)
+#         # Case 1: Chunk is not an NER label
+#         if label is None:
+#             for ptok in pseudo_tokens:
+#                 # Prediction token matches exactly
+#                 if ptok == tokens[token_id]:
+#                     token_id += 1
+#                     token_labels.append('O')
+#                     aligned_tokens.append(ptok)
+#                 # Prediction token does not match exactly
+#                 else:
+#                     if tokens[token_id] == '\n':
+#                         # If the token is a newline, we can skip it
+#                         token_id += 1
+#                         token_labels.append('O')
+#                         aligned_tokens.append("")
 
-                    # Case 1.2: Prediction token is a substring of the previous token
-                    # --> consider it as a match but don't add an additinal label
-                    if ptok in tokens[token_id - 1]:
-                        aligned_tokens[-1] += ' ' + ptok
-                    # Case 1.3: Prediction token is a substring of the next token
-                    # --> skip the next token and add the label 'O' for the current token
-                    elif ptok in tokens[token_id + 1]:
-                        # If the ptok is in the next token, we can skip it
-                        token_id += 2
-                        aligned_tokens.append('')
-                        token_labels.append('O')
-                        aligned_tokens.append(ptok)
-                        token_labels.append('O')
-                    
-                    elif ptok in tokens[token_id + 2]:
-                        # If the ptok is in the next token, we can skip it
-                        token_id += 3
-                        for i in range(2):
-                            aligned_tokens.append('')
-                            token_labels.append('O')
-                        aligned_tokens.append(ptok)
-                        token_labels.append('O')
+#                     # Case 1.2: Prediction token is a substring of the previous token
+#                     # --> consider it as a match but don't add an additinal label
+#                     if ptok in tokens[token_id - 1]:
+#                         aligned_tokens[-1] += ' ' + ptok
+#                     # Case 1.3: Prediction token is a substring of the next token
+#                     # --> skip the next token and add the label 'O' for the current token
+#                     elif ptok in tokens[token_id + 1]:
+#                         # If the ptok is in the next token, we can skip it
+#                         token_id += 2
+#                         aligned_tokens.append('')
+#                         token_labels.append('O')
+#                         aligned_tokens.append(ptok)
+#                         token_labels.append('O')
 
-                    # Case 1.1: Prediction token is a substring of the token, e.g. "application" & "application-area"
-                    # --> consider it as a match and continue
-                    elif ptok in tokens[token_id] or tokens[token_id] in ptok:
-                        token_labels.append('O')
-                        token_id += 1
-                        aligned_tokens.append(ptok)
-                    # Case 1.4: Prediction token is a newline
-                    # --> skip the newline and add the label 'O' for the current token
-                   
-                    else:
-                        aligned_tokens[-1] += ' ' + ptok
+#                     elif ptok in tokens[token_id + 2]:
+#                         # If the ptok is in the next token, we can skip it
+#                         token_id += 3
+#                         for i in range(2):
+#                             aligned_tokens.append('')
+#                             token_labels.append('O')
+#                         aligned_tokens.append(ptok)
+#                         token_labels.append('O')
 
-                  
+#                     # Case 1.1: Prediction token is a substring of the token, e.g. "application" & "application-area"
+#                     # --> consider it as a match and continue
+#                     elif ptok in tokens[token_id] or tokens[token_id] in ptok:
+#                         token_labels.append('O')
+#                         token_id += 1
+#                         aligned_tokens.append(ptok)
+#                     # Case 1.4: Prediction token is a newline
+#                     # --> skip the newline and add the label 'O' for the current token
 
-        # Case 2: Chunk is an NER
-        else:
-            # first = True
-            # for ptok in pseudo_tokens:
-            #     if ptok == tokens[token_id]:
-            #         if first:
-            #             token_labels.append(f'B-{ner_labels[label]}')
-            #             aligned_tokens.append(ptok)
-            #             first = False
-            #         else:
-            #             token_labels.append(f'I-{ner_labels[label]}')
-            #             aligned_tokens.append(ptok)
-            #         token_id += 1
-            #     else:
-            #         if tokens[token_id] == '\n':
-            #             # If the token is a newline, we can skip it
-            #             token_id += 1
-            #             token_labels.append('O')
-            #             aligned_tokens.append("")
+#                     else:
+#                         aligned_tokens[-1] += ' ' + ptok
 
-            #         if ptok in tokens[token_id - 1]:
-            #             aligned_tokens[-1] += ' ' + ptok
-            #         elif ptok in tokens[token_id + 1]:
-            #             token_id += 2
-            #             aligned_tokens.append('')
-            #             if first:
-            #                 token_labels.append(f'B-{ner_labels[label]}')
-            #                 first = False
-            #             else:
-            #                 token_labels.append(f'I-{ner_labels[label]}')
+#         # Case 2: Chunk is an NER
+#         else:
+#             # first = True
+#             # for ptok in pseudo_tokens:
+#             #     if ptok == tokens[token_id]:
+#             #         if first:
+#             #             token_labels.append(f'B-{ner_labels[label]}')
+#             #             aligned_tokens.append(ptok)
+#             #             first = False
+#             #         else:
+#             #             token_labels.append(f'I-{ner_labels[label]}')
+#             #             aligned_tokens.append(ptok)
+#             #         token_id += 1
+#             #     else:
+#             #         if tokens[token_id] == '\n':
+#             #             # If the token is a newline, we can skip it
+#             #             token_id += 1
+#             #             token_labels.append('O')
+#             #             aligned_tokens.append("")
 
-            #             token_labels.append(f'I-{ner_labels[label]}')
-            #             aligned_tokens.append(ptok)
+#             #         if ptok in tokens[token_id - 1]:
+#             #             aligned_tokens[-1] += ' ' + ptok
+#             #         elif ptok in tokens[token_id + 1]:
+#             #             token_id += 2
+#             #             aligned_tokens.append('')
+#             #             if first:
+#             #                 token_labels.append(f'B-{ner_labels[label]}')
+#             #                 first = False
+#             #             else:
+#             #                 token_labels.append(f'I-{ner_labels[label]}')
 
-            #         elif ptok in tokens[token_id] or tokens[token_id] in ptok:
-            #             if first:
-            #                 token_labels.append(f'B-{ner_labels[label]}')
-            #                 aligned_tokens.append(ptok)
-            #                 first = False
-            #             else:
-            #                 token_labels.append(f'I-{ner_labels[label]}')
-            #                 aligned_tokens.append(ptok)
-            #             token_id += 1
+#             #             token_labels.append(f'I-{ner_labels[label]}')
+#             #             aligned_tokens.append(ptok)
 
-            #         else:
-            #             aligned_tokens[-1] += ' ' + ptok
+#             #         elif ptok in tokens[token_id] or tokens[token_id] in ptok:
+#             #             if first:
+#             #                 token_labels.append(f'B-{ner_labels[label]}')
+#             #                 aligned_tokens.append(ptok)
+#             #                 first = False
+#             #             else:
+#             #                 token_labels.append(f'I-{ner_labels[label]}')
+#             #                 aligned_tokens.append(ptok)
+#             #             token_id += 1
 
-                  
+#             #         else:
+#             #             aligned_tokens[-1] += ' ' + ptok
 
-    # check if token_labels is the same length as token
-    if len(token_labels) != len(tokens):
-        raise ValueError(
-            f"Token labels length {len(token_labels)} does not match token length {len(tokens)}. Check the prediction: {pred}")
+#             # check if token_labels is the same length as token
+#     if len(token_labels) != len(tokens):
+#         raise ValueError(
+#             f"Token labels length {len(token_labels)} does not match token length {len(tokens)}. Check the prediction: {pred}")
 
-    return token_labels, aligned_tokens
+#     return token_labels, aligned_tokens
 
 
 def parse_ner_predictions(file: str) -> None:
@@ -398,7 +505,8 @@ def add_tokens():
     bioner_path = '/home/vera/Documents/Uni/Master/Master_Thesis2.0/PsyNamic-Scale/zero_shot/ner_gpt-4o-mini_06-06-06.csv'
     df_full = pd.read_csv(test_path)
     df_bioner = pd.read_csv(bioner_path)
-    df_bioner = df_bioner.merge(df_full[['id', 'tokens', 'ner_tags']], on='id', how='left')
+    df_bioner = df_bioner.merge(
+        df_full[['id', 'tokens', 'ner_tags']], on='id', how='left')
     # save bioner columns and new 'tokens' column
     df_bioner_columns = df_bioner.columns.tolist()
     df_bioner = df_bioner[df_bioner_columns]
@@ -406,11 +514,14 @@ def add_tokens():
 
 
 def main():
-    # task = "Study Type"
+
+    task = "Study Type"
+    # meta-llama/Llama-2-13b-chat-hf # meta-llama/Llama-2-70b-chat-hf
+    model = "meta-llama/Llama-2-7b-chat-hf"
     # model = "gpt-4o-mini"
-    # date = datetime.today().strftime('%d-%m-%d')
-    # # outfile_class = f"zero_shot/{task.lower().replace(' ', '_')}_{model}_{date}.csv"
-    # # make_class_predictions(task, model, outfile_class)
+    date = datetime.today().strftime('%d-%m-%d')
+    outfile_class = f"zero_shot/{task.lower().replace(' ', '_')}_{model}_{date}.csv"
+    make_class_predictions(task, model, outfile_class)
 
     # outfile_ner = f"zero_shot/ner_{model}_{date}.csv"
     # make_ner_prediction(model, outfile_ner)
@@ -432,7 +543,7 @@ def main():
     #         'aligned_tokens': aligned_tokens
     #     })
     #     df.to_csv('aligned_test_sample.csv', index=False, encoding='utf-8')
-    parse_ner_predictions('zero_shot/ner_gpt-4o-mini_06-06-06.csv')
+    # parse_ner_predictions('zero_shot/ner_gpt-4o-mini_06-06-06.csv')
 
 
 if __name__ == "__main__":

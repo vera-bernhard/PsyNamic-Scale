@@ -6,8 +6,9 @@ git+https://github.com/jacobgil/confidenceinterval.git
 numpy
 nervaluate
 bs4
-spacy
+spacy # After installing requirements, run `python -m spacy download en_core_web_sm`
 seaborn
 matplotlib
-# After installing requirements, run:
-# python -m spacy download en_core_web_sm
+transformers # Dont forget to get access to the models and log in via `huggingface-cli login`
+torch
+deepspeeds
