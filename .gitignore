@@ -6,6 +6,7 @@ finetuning/sft_*/*
 finetuning/lst_*/*
 zero_shot/history
 few_shot/history
+*_env
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python

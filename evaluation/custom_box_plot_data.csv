@@ -1,0 +1,115 @@
+model,condition,task,value,is_ner
+GPT-4o,zero-shot,Study Type,0.6216621967076789,False
+Llama-3.1-8B-Instruct,ift,Study Type,0.7433775515931671,False
+BERT,zero-shot,Study Type,0.8732648280670662,False
+MedGemma-27b-text-it,zero-shot,Study Type,0.6357929522041188,False
+GPT-4o,zero-shot,Data Collection,0.4727725928192575,False
+Llama-3.1-8B-Instruct,ift,Data Collection,0.9025322845172138,False
+BERT,zero-shot,Data Collection,0.8918560606060607,False
+MedGemma-27b-text-it,zero-shot,Data Collection,0.18212094094427778,False
+GPT-4o,zero-shot,Data Type,0.5784748021076146,False
+Llama-3.1-8B-Instruct,ift,Data Type,0.6662150443554258,False
+BERT,zero-shot,Data Type,0.789434882261055,False
+MedGemma-27b-text-it,zero-shot,Data Type,0.6322098386056862,False
+Llama-3.1-8B-Instruct,ift,Number of Participants,0.816515680201025,False
+GPT-4o,zero-shot,Number of Participants,0.6656159618361703,False
+BERT,zero-shot,Number of Participants,0.9188217149565832,False
+MedGemma-27b-text-it,zero-shot,Number of Participants,0.6976408230179781,False
+Llama-3.1-8B-Instruct,ift,Age of Participants,0.9180112359550563,False
+GPT-4o,zero-shot,Age of Participants,0.8394139194139194,False
+BERT,zero-shot,Age of Participants,0.9267106227106228,False
+MedGemma-27b-text-it,zero-shot,Age of Participants,0.8427472527472527,False
+GPT-4o,zero-shot,Application Form,0.6448990890796796,False
+Llama-3.1-8B-Instruct,ift,Application Form,0.8668667869921788,False
+BERT,zero-shot,Application Form,0.8451373639779436,False
+MedGemma-27b-text-it,zero-shot,Application Form,0.48003170659142147,False
+GPT-4o,zero-shot,Clinical Trial Phase,0.692121044474943,False
+Llama-3.1-8B-Instruct,ift,Clinical Trial Phase,0.7776791827022141,False
+BERT,zero-shot,Clinical Trial Phase,0.7933675283124271,False
+MedGemma-27b-text-it,zero-shot,Clinical Trial Phase,0.5852912842552983,False
+Llama-3.1-8B-Instruct,ift,Condition,0.9138440394884545,False
+GPT-4o,zero-shot,Condition,0.8209436658676644,False
+BERT,zero-shot,Condition,0.929756369391258,False
+MedGemma-27b-text-it,zero-shot,Condition,0.8278490817505074,False
+Llama-3.1-8B-Instruct,ift,Outcomes,0.8368190737802984,False
+GPT-4o,zero-shot,Outcomes,0.855756263464672,False
+BERT,zero-shot,Outcomes,0.7966502856380157,False
+MedGemma-27b-text-it,zero-shot,Outcomes,0.8557715266651335,False
+GPT-4o,zero-shot,Regimen,0.733620730494102,False
+Llama-3.1-8B-Instruct,ift,Regimen,0.8122278376260296,False
+BERT,zero-shot,Regimen,0.7348226029371681,False
+MedGemma-27b-text-it,zero-shot,Regimen,0.5870487016844406,False
+GPT-4o,zero-shot,Study Control,0.6988205348886463,False
+Llama-3.1-8B-Instruct,ift,Study Control,0.7442849608087319,False
+BERT,zero-shot,Study Control,0.7462985646235896,False
+MedGemma-27b-text-it,zero-shot,Study Control,0.6333000325711681,False
+GPT-4o,zero-shot,Study Purpose,0.8216599804405043,False
+Llama-3.1-8B-Instruct,ift,Study Purpose,0.7588998167607794,False
+BERT,zero-shot,Study Purpose,0.8126119991642607,False
+MedGemma-27b-text-it,zero-shot,Study Purpose,0.8089405543950999,False
+Llama-3.1-8B-Instruct,ift,Substance Naivety,0.8784962525460559,False
+GPT-4o,zero-shot,Substance Naivety,0.7791731430660456,False
+BERT,zero-shot,Substance Naivety,0.8581893179716946,False
+MedGemma-27b-text-it,zero-shot,Substance Naivety,0.6412531581321107,False
+Llama-3.1-8B-Instruct,ift,Substances,0.852402412105104,False
+GPT-4o,zero-shot,Substances,0.9225763230855201,False
+BERT,zero-shot,Substances,0.8714958367665573,False
+MedGemma-27b-text-it,zero-shot,Substances,0.913829899787833,False
+Llama-3.1-8B-Instruct,ift,Study Conclusion,0.7829022080128485,False
+GPT-4o,zero-shot,Study Conclusion,0.7258268824771288,False
+BERT,zero-shot,Study Conclusion,0.7875092500290497,False
+MedGemma-27b-text-it,zero-shot,Study Conclusion,0.6573037817277448,False
+Llama-3.1-8B-Instruct,ift,Relevant,0.8805118627008228,False
+GPT-4o,zero-shot,Relevant,0.7663950589473554,False
+BERT,zero-shot,Relevant,0.906486212187604,False
+MedGemma-27b-text-it,zero-shot,Relevant,0.7047410029498525,False
+Llama-3.1-8B-Instruct,ift,Setting,0.8850080254874227,False
+GPT-4o,zero-shot,Setting,0.8553613897975163,False
+BERT,zero-shot,Setting,0.8702442331132388,False
+MedGemma-27b-text-it,zero-shot,Setting,0.717100888921009,False
+GPT-4o,zero-shot,Sex of Participants,0.8506588319088318,False
+Llama-3.1-8B-Instruct,ift,Sex of Participants,0.9440761784511785,False
+BERT,zero-shot,Sex of Participants,0.942278747742324,False
+MedGemma-27b-text-it,zero-shot,Sex of Participants,0.8066340488215488,False
+GPT-4o,few-shot,Study Type,0.6751431844215349,False
+MedGemma-27b-text-it,few-shot,Study Type,0.6550234798418083,False
+MedGemma-27b-text-it,few-shot,Data Collection,0.4325049436711839,False
+GPT-4o,few-shot,Data Collection,0.724570443084594,False
+GPT-4o,few-shot,Data Type,0.6704340290593244,False
+MedGemma-27b-text-it,few-shot,Data Type,0.577625962000962,False
+MedGemma-27b-text-it,few-shot,Number of Participants,0.7183298854669823,False
+GPT-4o,few-shot,Number of Participants,0.7429470951753561,False
+GPT-4o,few-shot,Age of Participants,0.8689743589743589,False
+MedGemma-27b-text-it,few-shot,Age of Participants,0.8895301327885597,False
+MedGemma-27b-text-it,few-shot,Application Form,0.6519467351188822,False
+GPT-4o,few-shot,Application Form,0.7235317267402829,False
+GPT-4o,few-shot,Clinical Trial Phase,0.7142734111806277,False
+MedGemma-27b-text-it,few-shot,Clinical Trial Phase,0.6534604958283042,False
+GPT-4o,few-shot,Condition,0.8804519652750367,False
+MedGemma-27b-text-it,few-shot,Condition,0.8612324355579554,False
+MedGemma-27b-text-it,few-shot,Outcomes,0.8711662732613927,False
+GPT-4o,few-shot,Outcomes,0.8606566551120366,False
+GPT-4o,few-shot,Regimen,0.7923978604757026,False
+MedGemma-27b-text-it,few-shot,Regimen,0.6331658252933307,False
+GPT-4o,few-shot,Study Control,0.711638363187861,False
+MedGemma-27b-text-it,few-shot,Study Control,0.7033842861468912,False
+GPT-4o,few-shot,Study Purpose,0.8256442695948566,False
+MedGemma-27b-text-it,few-shot,Study Purpose,0.8032238805625952,False
+GPT-4o,few-shot,Substance Naivety,0.8554007973868902,False
+MedGemma-27b-text-it,few-shot,Substance Naivety,0.7392122569625562,False
+GPT-4o,few-shot,Substances,0.9207121003595705,False
+MedGemma-27b-text-it,few-shot,Substances,0.9190048268797169,False
+GPT-4o,few-shot,Study Conclusion,0.7394585364510177,False
+MedGemma-27b-text-it,few-shot,Study Conclusion,0.6152603117749832,False
+GPT-4o,few-shot,Relevant,0.7909420345220363,False
+MedGemma-27b-text-it,few-shot,Relevant,0.7239475488880553,False
+GPT-4o,few-shot,Setting,0.8835863746258348,False
+MedGemma-27b-text-it,few-shot,Setting,0.8683227251296558,False
+GPT-4o,few-shot,Sex of Participants,0.8426189526847422,False
+MedGemma-27b-text-it,few-shot,Sex of Participants,0.8425184442895318,False
+Llama-3.1-8B-Instruct,ift,NER-dosage,0.2951275137278592,True
+GPT-4o,zero-shot,NER-dosage,0.5321530330683408,True
+BERT,zero-shot,NER-dosage,0.8552914698870422,True
+MedGemma-27b-text-it,zero-shot,NER-dosage,0.39539225209516327,True
+MedGemma-27b-text-it,few-shot,NER-dosage,0.39539225209516327,True
+GPT-4o,few-shot,NER-dosage,0.5321530330683408,True
